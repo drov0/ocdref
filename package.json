@@ -1,0 +1,15 @@
+{
+  "name": "ocdref",
+  "version": "1.0.0",
+  "description": "Handles the ocdb referal system",
+  "main": "ocdref.js",
+  "dependencies": {
+    "dsteem": "^0.10.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Martin Lees",
+  "license": "MIT"
+}
