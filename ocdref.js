@@ -1,4 +1,5 @@
 const dsteem = require('dsteem');
+const utils = require("./utils");
 
 const client = new dsteem.Client('https://api.steemit.com');
 var fs = require('fs');
@@ -8,37 +9,7 @@ const main_account = "petanque";
 const iterate_nb = 500;
 
 
-/**
- * Save voter data to a cache file
- * @param username of the voter
- * @param author of the oldest active post voted
- * @param permlink of the oldest active post voted
- */
-function save_tx(id)
-{
-    fs.writeFileSync(cache_path, id);
-}
 
-/**
- * Returns the vote data of an user
- * @param username of the voter
- * @returns {*} the author and permlink of the oldest active post voted.
- */
-function get_last_tx()
-{
-    if (fs.existsSync(cache_path)) {
-        let data = fs.readFileSync(cache_path).toString();
-        return parseInt(data);
-    } else
-        return 0
-}
-
-function wait(time)
-{
-    return new Promise(resolve => {
-        setTimeout(() => resolve('☕'), time*1000); // miliseconds to seconds
-    });
-}
 
 function get_highest_tx()
 {
@@ -52,11 +23,11 @@ function get_highest_tx()
 
 
 
-function history() {
+function get_transactions() {
     return new Promise(async resolve => {
 
         let transactions = [];
-        let start = get_last_tx();
+        let start = utils.get_last_tx();
         let highest_tx = await get_highest_tx();
 
         do {
@@ -74,12 +45,26 @@ function history() {
 
             newest_tx = data[data.length - 1][0];
 
-            save_tx(newest_tx);
+            utils.save_tx(newest_tx);
             start = newest_tx;
         } while (highest_tx - start !== 0);
         return resolve(transactions);
     })
 }
+
+async function save_new_refs()
+{
+    let transactions = await get_transactions()
+
+    for (let i = 0; i < transactions.length; i++)
+    {
+        const acc = await client.database.getAccounts([transactions[i].memo]);
+
+        utils.db("INSERT INTO referral(parent,child) VALUES(?,?)", transactions[i].memo, transactions[i].from)
+    }
+
+}
+
 
 async function  run()
 {
@@ -87,8 +72,8 @@ async function  run()
 
     while (true)
     {
-        await history();
-        await wait(300);
+        await save_new_refs();
+        await utils.wait(300);
     }
 }
 

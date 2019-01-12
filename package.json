@@ -4,7 +4,9 @@
   "description": "Handles the ocdb referal system",
   "main": "ocdref.js",
   "dependencies": {
-    "dsteem": "^0.10.1"
+    "dotenv": "^6.2.0",
+    "dsteem": "^0.10.1",
+    "mysql": "^2.16.0"
   },
   "devDependencies": {},
   "scripts": {
