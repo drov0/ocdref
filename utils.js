@@ -1,4 +1,5 @@
 require('dotenv').config()
+var fs = require('fs');
 
 const mysql      = require('mysql');
 const db = mysql.createConnection({
@@ -10,6 +11,8 @@ const db = mysql.createConnection({
 });
 
 db.connect();
+
+const cache_path = __dirname+"/tx_cache";
 
 
 /**

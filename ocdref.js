@@ -2,9 +2,7 @@ const dsteem = require('dsteem');
 const utils = require("./utils");
 
 const client = new dsteem.Client('https://api.steemit.com');
-var fs = require('fs');
 
-const cache_path = __dirname+"/tx_cache";
 const main_account = "petanque";
 const iterate_nb = 500;
 
@@ -54,15 +52,16 @@ function get_transactions() {
 
 async function save_new_refs()
 {
-    let transactions = await get_transactions()
+    let transactions = await get_transactions();
 
     for (let i = 0; i < transactions.length; i++)
     {
+        // Check if the account actually exists
         const acc = await client.database.getAccounts([transactions[i].memo]);
 
-        utils.db("INSERT INTO referral(parent,child) VALUES(?,?)", transactions[i].memo, transactions[i].from)
+        if (acc.length !== 0)
+            utils.db("INSERT INTO referral(parent,child) VALUES(?,?)", transactions[i].memo, transactions[i].from)
     }
-
 }
 
 
