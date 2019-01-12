@@ -4,6 +4,8 @@ const client = new dsteem.Client('https://api.steemit.com');
 var fs = require('fs');
 
 const cache_path = __dirname+"/tx_cache";
+const main_account = "howo";
+const iterate_nb = 1000;
 
 
 /**
@@ -28,7 +30,7 @@ function get_last_tx()
         let data = fs.readFileSync(cache_path).toString();
         return parseInt(data);
     } else
-        return -1
+        return 0
 }
 
 function wait(time)
@@ -38,20 +40,44 @@ function wait(time)
     });
 }
 
+function get_highest_tx()
+{
+    return new Promise(async resolve => {
+
+        let data = await client.database.call("get_account_history", [main_account, 999999999999, 0]);
+
+        return resolve(data[0][0]);
+    })
+}
+
+
+
 function history() {
     return new Promise(async resolve => {
-        let data = await client.database.call("get_account_history", ["howo", -1, 1000]);
 
-        let newest_tx = 0;
 
-        for (let i = 0; i < data.length; i++)
-        {
-            let tx = data[i][1];
-            if (tx.op[0] === "transfer" /*&& tx.op[1].amount === "0.001 STEEM" && tx.op[1].memo !== "" && tx.op[1].memo.length <= 16*/)
-            {
-                console.log(data[i][0]);
-                console.log(tx.op[1])
+
+        let transactions = [];
+        let start = get_last_tx();
+        let highest_tx = await get_highest_tx();
+
+        while (highest_tx - start > iterate_nb) {
+
+            let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]);
+
+            let newest_tx = 0;
+
+            for (let i = 0; i < data.length; i++) {
+                let tx = data[i][1];
+                if (tx.op[0] === "transfer" /*&& tx.op[1].amount === "0.001 STEEM" && tx.op[1].memo !== "" && tx.op[1].memo.length <= 16*/) {
+                    transactions.push(tx.op[1]);
+                }
             }
+
+            newest_tx = data[data.length - 1][0];
+
+            save_tx(newest_tx);
+            start = newest_tx;
         }
     })
 }
@@ -59,6 +85,7 @@ function history() {
 async function  run()
 {
     console.log("running");
+
     while (true)
     {
         await history();
