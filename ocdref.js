@@ -4,8 +4,8 @@ const client = new dsteem.Client('https://api.steemit.com');
 var fs = require('fs');
 
 const cache_path = __dirname+"/tx_cache";
-const main_account = "howo";
-const iterate_nb = 1000;
+const main_account = "petanque";
+const iterate_nb = 500;
 
 
 /**
@@ -55,13 +55,11 @@ function get_highest_tx()
 function history() {
     return new Promise(async resolve => {
 
-
-
         let transactions = [];
         let start = get_last_tx();
         let highest_tx = await get_highest_tx();
 
-        while (highest_tx - start > iterate_nb) {
+        do {
 
             let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]);
 
@@ -78,7 +76,8 @@ function history() {
 
             save_tx(newest_tx);
             start = newest_tx;
-        }
+        } while (highest_tx - start !== 0);
+        return resolve(transactions);
     })
 }
 
