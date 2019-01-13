@@ -1,4 +1,9 @@
-require('dotenv').config()
+require('dotenv').config();
+const dsteem = require('dsteem');
+const client = new dsteem.Client('https://api.steemit.com');
+
+
+
 var fs = require('fs');
 const {promisify} = require('util');
 
@@ -66,7 +71,6 @@ function get_highest_tx(account)
         return resolve(data[0][0]);
     })
 }
-
 
 module.exports = {
     db_query : db_query,

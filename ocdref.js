@@ -11,7 +11,7 @@ async function run()
 {
     console.log("running");
 
-    await bidbot.get_transactions();
+    await bidbot.get_earnings_per_user();
 
     while (true)
     {
