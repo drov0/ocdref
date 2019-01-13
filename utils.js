@@ -13,7 +13,6 @@ const db = mysql.createConnection({
 
 db.connect();
 const db_query = promisify(db.query).bind(db);
-const cache_path = __dirname+"/tx_cache";
 
 
 /**
@@ -22,9 +21,9 @@ const cache_path = __dirname+"/tx_cache";
  * @param author of the oldest active post voted
  * @param permlink of the oldest active post voted
  */
-function save_tx(id)
+function save_tx(id, file)
 {
-    fs.writeFileSync(cache_path, id);
+    fs.writeFileSync(__dirname+file, id);
 }
 
 /**
@@ -32,10 +31,10 @@ function save_tx(id)
  * @param username of the voter
  * @returns {*} the author and permlink of the oldest active post voted.
  */
-function get_last_tx()
+function get_last_tx(file)
 {
     if (fs.existsSync(cache_path)) {
-        let data = fs.readFileSync(cache_path).toString();
+        let data = fs.readFileSync(__dirname+file).toString();
         return parseInt(data);
     } else
         return 0
@@ -57,10 +56,23 @@ function is_json_string(str) {
     return true;
 }
 
+
+function get_highest_tx(account)
+{
+    return new Promise(async resolve => {
+
+        let data = await client.database.call("get_account_history", [account, 999999999999, 0]);
+
+        return resolve(data[0][0]);
+    })
+}
+
+
 module.exports = {
     db_query : db_query,
     wait,
     get_last_tx,
     save_tx,
-    is_json_string
+    is_json_string,
+    get_highest_tx
 }

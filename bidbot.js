@@ -4,19 +4,10 @@ const config = require("./config");
 
 const client = new dsteem.Client('https://api.steemit.com');
 
-const main_account = "steempress-test";
-const iterate_nb = 500;
+const main_account = "ocdb";
+const iterate_nb = 10000;
 
 
-function get_highest_tx()
-{
-    return new Promise(async resolve => {
-
-        let data = await client.database.call("get_account_history", [main_account, 999999999999, 0]);
-
-        return resolve(data[0][0]);
-    })
-}
 
 
 
@@ -24,8 +15,8 @@ function get_transactions() {
     return new Promise(async resolve => {
 
         let transactions = [];
-        let start = utils.get_last_tx();
-        let highest_tx = await get_highest_tx();
+        let start = 0;
+        let highest_tx = await utils.get_highest_tx(main_account);
 
         do {
 
@@ -51,8 +42,6 @@ function get_transactions() {
             }
 
             newest_tx = data[data.length - 1][0];
-
-            utils.save_tx(newest_tx);
             start = newest_tx;
         } while (highest_tx - start !== 0);
         return resolve(transactions);
@@ -85,4 +74,7 @@ async function save_new_refs()
 }
 
 
-module.exports = {save_new_refs};
+module.exports = {
+    save_new_refs,
+    get_transactions
+};
