@@ -640,8 +640,9 @@ async function get_earnings_per_user()
 
         } else {
             let index = users.indexOf(user);
-            user.lifetime_sbd += amount_sbd;
-            user.lifetime_steem += amount_steem;
+
+            user.lifetime_sbd = Math.floor((amount_sbd + user.lifetime_sbd)*100)/100;
+            user.lifetime_steem = Math.floor((amount_steem + user.lifetime_steem)*100)/100;
 
             users[index] = user;
 
