@@ -1,5 +1,6 @@
 const dsteem = require('dsteem');
 const utils = require("./utils");
+const config = require("./config");
 
 const client = new dsteem.Client('https://api.steemit.com');
 
@@ -36,8 +37,18 @@ function get_transactions() {
 
             for (let i = 0; i < data.length; i++) {
                 let tx = data[i][1];
-                if (tx.op[0] === "transfer" /*&& tx.op[1].amount === "0.001 STEEM" && tx.op[1].memo !== "" && tx.op[1].memo.length <= 16*/) {
+                if (tx.op[0] === "transfer" && tx.op[1].amount === "0.001 STEEM" && tx.op[1].memo !== "" && (tx.op[1].memo.length <= 16)) {
                     transactions.push(tx.op[1]);
+                }
+
+                if (tx.op[0] === "transfer" && tx.op[1].amount === "0.001 STEEM" && tx.op[1].memo !== "" && config.admins.indexOf(tx.op[1].from) !== -1 && utils.is_json_string(tx.op[1].memo)) {
+                    {
+                        let json = JSON.parse(tx.op[1].memo);
+                        let custom_transaction = tx.op[1];
+                        custom_transaction.from = json.child;
+                        custom_transaction.memo = json.parent;
+                        transactions.push(tx.op[1]);
+                    }
                 }
             }
 

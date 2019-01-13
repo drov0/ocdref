@@ -48,10 +48,19 @@ function wait(time)
     });
 }
 
+function is_json_string(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
 module.exports = {
     db_query : db_query,
     wait,
     get_last_tx,
-    save_tx
+    save_tx,
+    is_json_string
 }
