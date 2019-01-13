@@ -3,7 +3,7 @@ const utils = require("./utils");
 
 const client = new dsteem.Client('https://api.steemit.com');
 
-const main_account = "petanque";
+const main_account = "steempress-test";
 const iterate_nb = 500;
 
 
@@ -52,6 +52,7 @@ function get_transactions() {
 
 async function save_new_refs()
 {
+    console.log("Saving new refs...");
     let transactions = await get_transactions();
 
     for (let i = 0; i < transactions.length; i++)
@@ -59,9 +60,19 @@ async function save_new_refs()
         // Check if the account actually exists
         const acc = await client.database.getAccounts([transactions[i].memo]);
 
-        if (acc.length !== 0)
-            utils.db("INSERT INTO referral(parent,child) VALUES(?,?)", transactions[i].memo, transactions[i].from)
+        if (acc.length !== 0) {
+
+            const parent = transactions[i].memo;
+            const child = transactions[i].from;
+
+            await utils.db_query("INSERT INTO referral(parent,child) VALUES(?,?)", [parent, child]).catch(function (err) {
+                console.error(err)
+            });
+            console.log(`${parent} refereed ${child}`);
+        }
     }
+
+    console.log("Finished saving new refs")
 }
 
 

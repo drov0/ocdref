@@ -1,5 +1,6 @@
 require('dotenv').config()
 var fs = require('fs');
+const {promisify} = require('util');
 
 const mysql      = require('mysql');
 const db = mysql.createConnection({
@@ -11,7 +12,7 @@ const db = mysql.createConnection({
 });
 
 db.connect();
-
+const db_query = promisify(db.query).bind(db);
 const cache_path = __dirname+"/tx_cache";
 
 
@@ -49,7 +50,7 @@ function wait(time)
 
 
 module.exports = {
-    db,
+    db_query : db_query,
     wait,
     get_last_tx,
     save_tx
