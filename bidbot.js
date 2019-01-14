@@ -6,11 +6,7 @@ const is_url = require("is-url");
 const client = new dsteem.Client('https://api.steemit.com');
 
 const main_account = "ocdb";
-const iterate_nb = 5000;
-
-
-
-
+const iterate_nb = 10000;
 
 function get_transactions() {
     return new Promise(async resolve => {
@@ -94,8 +90,6 @@ async function get_earnings_per_user()
             users[index] = user;
 
         }
-
-
     }
 
     console.log("Finished saving new refs")
