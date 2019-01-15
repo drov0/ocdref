@@ -41,19 +41,42 @@ function split_earnings()
         //const voteRshares = post.active_votes.reduce((a, b) => a + parseFloat(b.rshares), 0);
         //const ratio = totalPayout / voteRshares;
 
-        let active_parent = [];
+        let active_parents = [];
 
         for (let i = 0; i < earnings.length; i++)
         {
-            let user =  refs.find(o => (o.child === earnings[i].name));
 
-            if (user !== undefined) {
-                    user.lifetime_sbd = Math.floor((earnings[i].lifetime_sbd + user.lifetime_sbd) * 100) / 100;
-                    user.lifetime_steem = Math.floor((earnings[i].lifetime_steem + user.lifetime_steem) * 100) / 100;
-                    user.weekly_sbd = Math.floor((earnings[i].weekly_sbd + user.weekly_sbd) * 100) / 100;
-                    user.weekly_steem = Math.floor((earnings[i].weekly_steem + user.weekly_steem) * 100) / 100;
+            let ref_user = refs.find(o => (o.child === earnings[i].name));
+
+            if (ref_user !== undefined) {
+
+                let user = active_parents.find(x => x.name === ref_user.parent);
+
+                let newly_added = false;
+
+                if (user === undefined) {
+                    user = ref_user;
+                    delete user.child;
+                    user.name = user.parent;
+                    delete user.parent;
+                    newly_added = true;
                 }
+
+                user.lifetime_sbd = Math.floor((earnings[i].lifetime_sbd + user.lifetime_sbd) * 100) / 100;
+                user.lifetime_steem = Math.floor((earnings[i].lifetime_steem + user.lifetime_steem) * 100) / 100;
+                user.weekly_sbd = Math.floor((earnings[i].weekly_sbd + user.weekly_sbd) * 100) / 100;
+                user.weekly_steem = Math.floor((earnings[i].weekly_steem + user.weekly_steem) * 100) / 100;
+
+                if (newly_added === false)
+                {
+                    let index = active_parents.indexOf(user);
+                    active_parents[index] = user;
+                } else
+                    active_parents.push(user);
+
+
             }
+        }
 
         console.log("yes")
 
