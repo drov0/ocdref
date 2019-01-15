@@ -38,9 +38,6 @@ function split_earnings()
 
         refs = clean_referrals(refs);
 
-        //const voteRshares = post.active_votes.reduce((a, b) => a + parseFloat(b.rshares), 0);
-        //const ratio = totalPayout / voteRshares;
-
         let active_parents = [];
 
         for (let i = 0; i < earnings.length; i++)
@@ -78,7 +75,23 @@ function split_earnings()
             }
         }
 
+        const lifetime_sbd_share = active_parents.reduce((a, b) => a + parseFloat(b.lifetime_sbd), 0);
+        const lifetime_steem_share = active_parents.reduce((a, b) => a + parseFloat(b.lifetime_steem), 0);
+        const weekly_sbd_share = active_parents.reduce((a, b) => a + parseFloat(b.weekly_sbd), 0);
+        const weekly_steem_share = active_parents.reduce((a, b) => a + parseFloat(b.weekly_steem), 0);
+
+
+        for (let i = 0; i < active_parents.length; i++) {
+            active_parents[i].share = (   active_parents[i].lifetime_sbd / lifetime_sbd_share
+                                        + active_parents[i].lifetime_steem / lifetime_steem_share
+                                        + active_parents[i].weekly_sbd / weekly_sbd_share
+                                        + active_parents[i].weekly_steem / weekly_steem_share) / 4;
+        }
+
+
         console.log("yes")
+
+
 
     });
 }
