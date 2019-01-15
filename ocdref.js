@@ -36,8 +36,26 @@ function split_earnings()
 
         let refs = await referrals.get_referrals();
 
-        clean_referrals(refs);
+        refs = clean_referrals(refs);
 
+        //const voteRshares = post.active_votes.reduce((a, b) => a + parseFloat(b.rshares), 0);
+        //const ratio = totalPayout / voteRshares;
+
+        let active_parent = [];
+
+        for (let i = 0; i < earnings.length; i++)
+        {
+            let user =  refs.find(o => (o.child === earnings[i].name));
+
+            if (user !== undefined) {
+                    user.lifetime_sbd = Math.floor((earnings[i].lifetime_sbd + user.lifetime_sbd) * 100) / 100;
+                    user.lifetime_steem = Math.floor((earnings[i].lifetime_steem + user.lifetime_steem) * 100) / 100;
+                    user.weekly_sbd = Math.floor((earnings[i].weekly_sbd + user.weekly_sbd) * 100) / 100;
+                    user.weekly_steem = Math.floor((earnings[i].weekly_steem + user.weekly_steem) * 100) / 100;
+                }
+            }
+
+        console.log("yes")
 
     });
 }

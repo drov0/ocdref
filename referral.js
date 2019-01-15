@@ -75,7 +75,17 @@ async function save_new_refs()
 function get_referrals()
 {
     return new Promise(async resolve => {
-        return resolve(await utils.db_query("select * from referral"));
+        let users = await utils.db_query("select * from referral");
+
+        for (let i = 0; i < users.length; i++)
+        {
+                users[i].lifetime_sbd = 0;
+                users[i].lifetime_steem = 0;
+                users[i].weekly_sbd = 0;
+                users[i].weekly_steem = 0;
+        }
+
+        return resolve(users);
     });
 }
 
