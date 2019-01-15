@@ -11,7 +11,8 @@ async function run()
 {
     console.log("running");
 
-    await bidbot.get_earnings_per_user();
+    let earnings = await bidbot.get_earnings_per_user();
+
 
     while (true)
     {

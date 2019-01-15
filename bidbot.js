@@ -48,7 +48,6 @@ async function get_earnings_per_user()
 
     for (let i = 0; i < transactions.length; i++)
     {
-
         let amount_sbd = 0;
         let amount_steem = 0;
         let weekly_sbd = 0;
@@ -92,7 +91,9 @@ async function get_earnings_per_user()
         }
     }
 
-    console.log("Finished saving new refs")
+    console.log("Finished getting earnings");
+
+    return resolve(users);
 }
 
 
