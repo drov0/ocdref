@@ -75,7 +75,7 @@ async function save_new_refs()
 function get_referrals()
 {
     return new Promise(async resolve => {
-        return await utils.db_query("select * from referral");
+        return resolve(await utils.db_query("select * from referral"));
     });
 }
 

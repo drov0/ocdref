@@ -2,6 +2,7 @@ const dsteem = require('dsteem');
 const utils = require("./utils");
 const config = require("./config");
 const is_url = require("is-url");
+const refs = require("./referral");
 
 const client = new dsteem.Client('https://api.steemit.com');
 
@@ -37,63 +38,63 @@ function get_transactions() {
     })
 }
 
-async function get_earnings_per_user()
+function get_earnings_per_user()
 {
-    const now = Math.floor(new Date().getTime() / 1000);
+    return new Promise(async resolve => {
+        const now = Math.floor(new Date().getTime() / 1000);
 
-    console.log("Grabbing All ocdb transfers...");
-    let transactions = await get_transactions();
+        console.log("Grabbing All ocdb transfers...");
+        let transactions = await get_transactions();
 
-    let users = [];
+        let users = [];
 
-    for (let i = 0; i < transactions.length; i++)
-    {
-        let amount_sbd = 0;
-        let amount_steem = 0;
-        let weekly_sbd = 0;
-        let weekly_steem = 0;
+        for (let i = 0; i < transactions.length; i++) {
+            let amount_sbd = 0;
+            let amount_steem = 0;
+            let weekly_sbd = 0;
+            let weekly_steem = 0;
 
-        if (transactions[i].amount.indexOf("SBD") !== -1) {
-            amount_sbd = parseFloat(transactions[i].amount);
+            if (transactions[i].amount.indexOf("SBD") !== -1) {
+                amount_sbd = parseFloat(transactions[i].amount);
 
-            // If the tx happened less than a week ago
-            if (now - (new Date(transactions[i].timestamp).getTime()/1000) < 604800)
-                weekly_sbd = parseFloat(transactions[i].amount);
+                // If the tx happened less than a week ago
+                if (now - (new Date(transactions[i].timestamp).getTime() / 1000) < 604800)
+                    weekly_sbd = parseFloat(transactions[i].amount);
+            } else {
+                amount_steem = parseFloat(transactions[i].amount);
+                if (now - (new Date(transactions[i].timestamp).getTime() / 1000) < 604800)
+                    weekly_steem = parseFloat(transactions[i].amount);
+            }
+
+            let user = users.find(x => x.name === transactions[i].from);
+
+            if (user === undefined) {
+                user = {
+                    name: transactions[i].from,
+                    lifetime_sbd: amount_sbd,
+                    lifetime_steem: amount_steem,
+                    weekly_sbd: weekly_sbd,
+                    weekly_steem: weekly_steem
+                };
+                users.push(user);
+
+            } else {
+                let index = users.indexOf(user);
+
+                user.lifetime_sbd = Math.floor((amount_sbd + user.lifetime_sbd) * 100) / 100;
+                user.lifetime_steem = Math.floor((amount_steem + user.lifetime_steem) * 100) / 100;
+                user.weekly_sbd = Math.floor((weekly_sbd + user.weekly_sbd) * 100) / 100;
+                user.weekly_steem = Math.floor((weekly_steem + user.weekly_steem) * 100) / 100;
+
+                users[index] = user;
+
+            }
         }
-        else {
-            amount_steem = parseFloat(transactions[i].amount);
-            if (now - (new Date(transactions[i].timestamp).getTime()/1000) < 604800)
-                weekly_steem = parseFloat(transactions[i].amount);
-        }
 
-        let user = users.find(x => x.name === transactions[i].from);
+        console.log("Finished getting earnings");
 
-        if (user === undefined) {
-            user = {
-                name: transactions[i].from,
-                lifetime_sbd: amount_sbd,
-                lifetime_steem: amount_steem,
-                weekly_sbd : weekly_sbd,
-                weekly_steem : weekly_steem
-            };
-            users.push(user);
-
-        } else {
-            let index = users.indexOf(user);
-
-            user.lifetime_sbd = Math.floor((amount_sbd + user.lifetime_sbd)*100)/100;
-            user.lifetime_steem = Math.floor((amount_steem + user.lifetime_steem)*100)/100;
-            user.weekly_sbd = Math.floor((weekly_sbd + user.weekly_sbd)*100)/100;
-            user.weekly_steem = Math.floor((weekly_steem + user.weekly_steem)*100)/100;
-
-            users[index] = user;
-
-        }
-    }
-
-    console.log("Finished getting earnings");
-
-    return resolve(users);
+        return resolve(users);
+    });
 }
 
 
