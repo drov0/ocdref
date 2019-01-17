@@ -82,10 +82,17 @@ function split_earnings()
 
 
         for (let i = 0; i < active_parents.length; i++) {
-            active_parents[i].share = (   active_parents[i].lifetime_sbd / lifetime_sbd_share
+            let share_percentage = (   active_parents[i].lifetime_sbd / lifetime_sbd_share
                                         + active_parents[i].lifetime_steem / lifetime_steem_share
                                         + active_parents[i].weekly_sbd / weekly_sbd_share
                                         + active_parents[i].weekly_steem / weekly_steem_share) / 4;
+
+            let share = Math.floor((parseFloat(ocdbfund[0].balance) * share_percentage) * 1000) / 1000;
+
+            if (share < 0.001)
+                share = 0;
+
+            active_parents[i].share = share;
         }
 
 
