@@ -11,10 +11,10 @@ function get_transactions() {
     return new Promise(async resolve => {
 
         let transactions = [];
-        let start = utils.get_last_tx("ref_cache");
+        let start = utils.get_last_tx();
         let highest_tx = await utils.get_highest_tx(main_account);
 
-        do {
+        while (highest_tx - start !== 0) {
 
             let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]);
 
@@ -39,9 +39,9 @@ function get_transactions() {
 
             newest_tx = data[data.length - 1][0];
 
-            utils.save_tx(newest_tx, "ref_cache");
+            utils.save_tx(newest_tx);
             start = newest_tx;
-        } while (highest_tx - start !== 0);
+        }
         return resolve(transactions);
     })
 }

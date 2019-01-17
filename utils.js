@@ -20,6 +20,8 @@ db.connect();
 const db_query = promisify(db.query).bind(db);
 
 
+const cache_path = __dirname+"/tx_cache";
+
 /**
  * Save voter data to a cache file
  * @param username of the voter
@@ -28,7 +30,7 @@ const db_query = promisify(db.query).bind(db);
  */
 function save_tx(id, file)
 {
-    fs.writeFileSync(__dirname+file, id);
+    fs.writeFileSync(cache_path, id);
 }
 
 /**
@@ -36,10 +38,10 @@ function save_tx(id, file)
  * @param username of the voter
  * @returns {*} the author and permlink of the oldest active post voted.
  */
-function get_last_tx(file)
+function get_last_tx()
 {
     if (fs.existsSync(cache_path)) {
-        let data = fs.readFileSync(__dirname+file).toString();
+        let data = fs.readFileSync(cache_path).toString();
         return parseInt(data);
     } else
         return 0

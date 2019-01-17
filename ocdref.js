@@ -1,9 +1,9 @@
 const dsteem = require('dsteem');
 const utils = require("./utils");
 const config = require("./config");
-const referrals = require("./referral")
-const bidbot = require("./bidbot")
-import schedule from 'node-schedule'
+const referrals = require("./referral");
+const bidbot = require("./bidbot");
+const schedule = require('node-schedule');
 
 const client = new dsteem.Client('https://api.steemit.com');
 
@@ -167,8 +167,8 @@ function transfer(from, to, amount, memo, active_key)
     });
 }
 
-// Run at 12:05 every monday.
-schedule.scheduleJob('5 12 * * 1', () => split_earnings());
+// Run at 12:00 every monday.
+schedule.scheduleJob('0 12 * * 1', () => split_earnings());
 
 async function run()
 {
