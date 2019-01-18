@@ -7,6 +7,19 @@ const client = new dsteem.Client('https://api.steemit.com');
 const main_account = "steempress-test";
 const iterate_nb = 500;
 
+function get_account_history(start)
+{
+    return new Promise(async resolve => {
+        let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]).catch(function (err) {
+            console.error("handled error : ");
+            console.error(err.message);
+            return resolve(-1);
+        });
+        return resolve(data);
+    });
+}
+
+
 function get_transactions() {
     return new Promise(async resolve => {
 
@@ -14,9 +27,14 @@ function get_transactions() {
         let start = utils.get_last_tx();
         let highest_tx = await utils.get_highest_tx(main_account);
 
-        while (highest_tx - start !== 0) {
+        while (highest_tx - start > iterate_nb)  {
 
-            let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]);
+            let data = await get_account_history(start);
+
+            while (data === -1)
+            {
+                data = await get_account_history(start);
+            }
 
             let newest_tx = 0;
 
@@ -42,6 +60,30 @@ function get_transactions() {
             utils.save_tx(newest_tx);
             start = newest_tx;
         }
+
+        // Last transactions to grab, we have to do it that way because the highest_tx id keeps changing.
+        let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]);
+
+        let newest_tx = 0;
+
+        for (let i = 0; i < data.length; i++) {
+            let tx = data[i][1];
+            if (tx.op[0] === "transfer" && tx.op[1].amount === "0.001 STEEM" && tx.op[1].memo !== "" && (tx.op[1].memo.length <= 16)) {
+                transactions.push(tx.op[1]);
+            }
+
+            if (tx.op[0] === "transfer" && tx.op[1].amount === "0.001 STEEM" && tx.op[1].memo !== "" && config.admins.indexOf(tx.op[1].from) !== -1 && utils.is_json_string(tx.op[1].memo)) {
+                {
+                    let json = JSON.parse(tx.op[1].memo);
+                    let custom_transaction = tx.op[1];
+                    custom_transaction.from = json.child;
+                    custom_transaction.memo = json.parent;
+                    transactions.push(tx.op[1]);
+                }
+            }
+        }
+
+
         return resolve(transactions);
     })
 }

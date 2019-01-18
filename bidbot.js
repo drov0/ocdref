@@ -21,6 +21,7 @@ function get_account_history(start)
         return resolve(data);
     });
 }
+
 function get_transactions() {
     return new Promise(async resolve => {
 
@@ -28,7 +29,7 @@ function get_transactions() {
         let start = 0;
         let highest_tx = await utils.get_highest_tx(main_account);
 
-        do {
+        while (highest_tx - start > iterate_nb) {
             console.log(`Grabbing ocdb tx data : ${start}/${highest_tx}`);
 
             let data = await get_account_history(start);
@@ -52,7 +53,7 @@ function get_transactions() {
 
             newest_tx = data[data.length - 1][0];
             start = newest_tx;
-        } while (highest_tx - start > iterate_nb);
+        }
 
         // Last transactions to grab, we have to do it that way because the highest_tx id keeps changing.
         console.log(`Grabbing ocdb tx data : ${start}/${highest_tx}`);
