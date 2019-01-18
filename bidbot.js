@@ -29,9 +29,7 @@ function get_transactions() {
         let highest_tx = await utils.get_highest_tx(main_account);
 
         do {
-
             console.log(`Grabbing ocdb tx data : ${start}/${highest_tx}`);
-
 
             let data = await get_account_history(start);
 
@@ -47,14 +45,35 @@ function get_transactions() {
                 if (tx.op[0] === "transfer" && tx.op[1].memo !== "" && is_url(tx.op[1].memo) === true) {
                     let custom_transaction = tx.op[1];
 
-                    custom_transaction.timestamp = data[i][1].timestamp
+                    custom_transaction.timestamp = data[i][1].timestamp;
                     transactions.push(custom_transaction);
                 }
             }
 
             newest_tx = data[data.length - 1][0];
             start = newest_tx;
-        } while (highest_tx - start < iterate_nb);
+        } while (highest_tx - start > iterate_nb);
+
+        // Last transactions to grab, we have to do it that way because the highest_tx id keeps changing.
+        console.log(`Grabbing ocdb tx data : ${start}/${highest_tx}`);
+
+        let data = await get_account_history(start);
+
+        while (data === -1)
+        {
+            data = await get_account_history(start);
+        }
+
+        for (let i = 0; i < data.length; i++) {
+            let tx = data[i][1];
+            if (tx.op[0] === "transfer" && tx.op[1].memo !== "" && is_url(tx.op[1].memo) === true) {
+                let custom_transaction = tx.op[1];
+
+                custom_transaction.timestamp = data[i][1].timestamp;
+                transactions.push(custom_transaction);
+            }
+        }
+
 
         console.log("All tx recorded");
 
