@@ -174,6 +174,8 @@ async function run()
 {
     console.log("running");
 
+    await split_earnings();
+
     while (true)
     {
         await referrals.save_new_refs();

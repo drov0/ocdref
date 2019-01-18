@@ -9,6 +9,18 @@ const client = new dsteem.Client('https://api.steemit.com');
 const main_account = "ocdb";
 const iterate_nb = 10000;
 
+
+function get_account_history(start)
+{
+    return new Promise(async resolve => {
+        let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]).catch(function (err) {
+            console.error("handled error : ");
+            console.error(err.message);
+            return resolve(-1);
+        });
+        return resolve(data);
+    });
+}
 function get_transactions() {
     return new Promise(async resolve => {
 
@@ -18,7 +30,16 @@ function get_transactions() {
 
         do {
 
-            let data = await client.database.call("get_account_history", [main_account, start + iterate_nb, iterate_nb]);
+            console.log(`Grabbing ocdb tx data : ${start}/${highest_tx}`);
+
+
+            let data = await get_account_history(start);
+
+            while (data === -1)
+            {
+                data = await get_account_history(start);
+            }
+
             let newest_tx = 0;
 
             for (let i = 0; i < data.length; i++) {
@@ -33,7 +54,10 @@ function get_transactions() {
 
             newest_tx = data[data.length - 1][0];
             start = newest_tx;
-        } while (highest_tx - start !== 0);
+        } while (highest_tx - start < iterate_nb);
+
+        console.log("All tx recorded");
+
         return resolve(transactions);
     })
 }
