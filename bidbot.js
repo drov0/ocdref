@@ -144,5 +144,4 @@ function get_earnings_per_user()
 
 module.exports = {
     get_earnings_per_user,
-    get_transactions
 };
