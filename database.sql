@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 14, 2019 at 11:38 PM
--- Server version: 5.7.24-0ubuntu0.18.04.1
+-- Generation Time: Feb 10, 2019 at 03:57 PM
+-- Server version: 5.7.25-0ubuntu0.18.04.2
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -43,15 +43,6 @@ CREATE TABLE `referral` (
   `parent` char(16) NOT NULL,
   `child` char(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `referral`
---
-
-INSERT INTO `referral` (`parent`, `child`) VALUES
-('acidyo', 'howo'),
-('petanque', 'howo'),
-('test', 'acidyo');
 
 --
 -- Indexes for dumped tables
