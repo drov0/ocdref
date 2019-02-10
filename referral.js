@@ -4,7 +4,7 @@ const config = require("./config");
 
 const client = new dsteem.Client('https://api.steemit.com');
 
-const main_account = "steempress-test";
+const main_account = "ocdbref";
 const iterate_nb = 500;
 
 function get_account_history(start)
